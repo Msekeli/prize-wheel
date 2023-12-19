@@ -1,7 +1,15 @@
-// Function to Get Wheel Values
+// Assuming you have the getWheelValues function that fetches data from your API
+
+// Function to update the chart with new data
+function updateChartWithData(newData) {
+    // Assuming myChart is the reference to your existing chart
+    myChart.data.datasets[0].data = newData;
+    myChart.update();
+}
+
 async function getWheelValues() {
     try {
-        const response = await fetch('<YourAzureFunctionUrl>/api/GetWheelValues', {
+        const response = await fetch('http://localhost:7071/api/GetWheelValues', {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -9,49 +17,19 @@ async function getWheelValues() {
         });
 
         const data = await response.json();
-        console.log('Wheel Values:', data);
 
-        // Handle the received data as needed for your frontend
+        if (response.ok) {
+            const generatedValues = data.values; // Replace 'values' with the actual property name
+            updateChartWithData(generatedValues);
+        } else {
+            console.error('Error fetching wheel values:', data);
+            // Handle the error as needed for your frontend
+        }
     } catch (error) {
         console.error('Error fetching wheel values:', error);
+        // Handle the error as needed for your frontend
     }
 }
 
-// Function to Check Spin Availability
-async function checkSpinAvailability() {
-    try {
-        const response = await fetch('<YourAzureFunctionUrl>/api/CheckSpinAvailability', {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        });
-
-        const data = await response.json();
-        console.log('Spin Availability:', data);
-
-        // Handle the received data as needed for your frontend
-    } catch (error) {
-        console.error('Error checking spin availability:', error);
-    }
-}
-
-// Function to Handle Spin Requests
-async function handleSpinRequest() {
-    try {
-        const response = await fetch('<YourAzureFunctionUrl>/api/HandleSpinRequest', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        });
-
-        const data = await response.json();
-        console.log('Spin Result:', data);
-
-        // Handle the received data as needed for your frontend
-    } catch (error) {
-        console.error('Error handling spin request:', error);
-    }
-}
-
+// Call the getWheelValues function to fetch and update the chart
+getWheelValues();

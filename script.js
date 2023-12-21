@@ -56,7 +56,7 @@ let count = 0;
 let resultValue = 101;
 spinBtn.addEventListener("click", () => {
   spinBtn.disabled = true;
-  finalValue.innerHTML = `<p>let's go!</p>`;
+  finalValue.innerHTML = `<p>Good Luck!</p>`;
   let randomDegree = Math.floor(Math.random() * (355 - 0 + 1) + 0);
   let rotationInterval = window.setInterval(() => {
     myChart.options.rotation = myChart.options.rotation + resultValue;
@@ -86,6 +86,7 @@ async function getWheelValues() {
     const data = await response.json();
 
     myChart.data.labels = data;
+    myChart.data.datasets[0].data = data;
     myChart.update();
   } catch (error) {
     console.error(error);

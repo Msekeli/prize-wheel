@@ -85,10 +85,46 @@ async function getWheelValues() {
 
     const data = await response.json();
 
+    // Update the wheel data with the received values
     myChart.data.labels = data;
     myChart.data.datasets[0].data = data;
     myChart.update();
+
+    // Display a message if needed (modify as per your response structure)
+    if (data && data.message) {
+      finalValue.innerHTML = `<p>${data.message}</p>`;
+    }
   } catch (error) {
     console.error(error);
   }
 }
+
+// ... (your existing code)
+
+spinBtn.addEventListener("click", () => {
+  spinBtn.disabled = true;
+  finalValue.innerHTML = `<p>Good Luck!</p>`;
+
+  // Trigger the Azure Function call to get new wheel values
+  getWheelValues()
+    .then(() => {
+      // Proceed with the spinning logic as before
+      let randomDegree = Math.floor(Math.random() * (355 - 0 + 1) + 0);
+      let rotationInterval = window.setInterval(() => {
+        myChart.options.rotation = myChart.options.rotation + resultValue;
+        myChart.update();
+        if (myChart.options.rotation >= 360) {
+          count += 1;
+          resultValue -= 5;
+          myChart.options.rotation = 0;
+        } else if (count > 15 && myChart.options.rotation == randomDegree) {
+          // Modify valueGenerator to use data from the backend
+          valueGenerator(randomDegree, data);
+          clearInterval(rotationInterval);
+          count = 0;
+          resultValue = 101;
+        }
+      }, 10);
+    });
+});
+

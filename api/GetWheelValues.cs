@@ -8,7 +8,9 @@ using Microsoft.Extensions.Logging;
 public static class GetWheelValuesFunction
 {
     private static readonly Random RandomGenerator = new Random();
-    private const int V = 6;
+    private const int NumberOfSegments = 6; 
+
+    private const int MaxPrizeAmount = 501; 
 
     [FunctionName("GetWheelValues")]
     public static IActionResult Run(
@@ -22,34 +24,36 @@ public static class GetWheelValuesFunction
 
             if (currentTime.Minute % 2 == 0)
             {
-                var numberOfSegments = V;
-                var randomValues = GenerateRandomValues(numberOfSegments);
+                var randomValues = GenerateRandomValues(NumberOfSegments);
 
                 log.LogInformation($"Generated Wheel Values: {string.Join(", ", randomValues)}");
                 return new OkObjectResult(randomValues);
             }
             else
             {
-                return new OkObjectResult("Wheel may not be spun at odd-numbered minutes.");
+                return new OkObjectResult(new { Message = "Wheel may not be spun at odd-numbered minutes." });
             }
         }
         catch (Exception ex)
         {
-            log.LogError($"Error in GetWheelValuesFunction: {ex.Message}");
+
+            log.LogError($"Error in GetWheelValuesFunction: {ex}");
             return new StatusCodeResult(500);
         }
     }
+
     private static int[] GenerateRandomValues(int numberOfSegments)
     {
         var values = new int[numberOfSegments];
 
         for (int i = 0; i < numberOfSegments; i++)
         {
-            values[i] = RandomGenerator.Next(501);
+            values[i] = RandomGenerator.Next(MaxPrizeAmount);
         }
         ShuffleArray(values);
         return values;
     }
+
     private static void ShuffleArray<T>(T[] array)
     {
         for (int i = array.Length - 1; i > 0; i--)

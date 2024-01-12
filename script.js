@@ -1,3 +1,4 @@
+// main.js
 const wheel = document.getElementById("wheel");
 const spinBtn = document.getElementById("spin-btn");
 const finalValue = document.getElementById("final-value");
@@ -10,10 +11,11 @@ const rotationValues = [
   { minDegree: 271, maxDegree: 330, value: 3 },
   { minDegree: 331, maxDegree: 360, value: 2 },
 ];
-const data = [16, 16, 16, 16, 16, 16];
+const data = [1, 1, 1, 1, 1, 1];
 var pieColors = [
-  "#9336B4", 
+  "#9336B4","#DA70D6",
 ];
+
 let myChart = new Chart(wheel, {
   plugins: [ChartDataLabels],
   type: "pie",
@@ -42,89 +44,70 @@ let myChart = new Chart(wheel, {
     },
   },
 });
-const valueGenerator = (angleValue) => {
+
+const valueGenerator = (angleValue, data) => {
   for (let i of rotationValues) {
     if (angleValue >= i.minDegree && angleValue <= i.maxDegree) {
-      const wonAmount = i.value * 10;
+      const wonAmount = data[i.value]; 
       finalValue.innerHTML = `<p>Congratulations! You won $${wonAmount}</p>`;
       spinBtn.disabled = false;
       break;
     }
   }
 };
+
 let count = 0;
 let resultValue = 101;
+
+const normalizeData = (data) => {
+  const total = data.reduce((acc, value) => acc + value, 0);
+  return data.map(value => (value / total) * 100);
+};
+
 spinBtn.addEventListener("click", () => {
   spinBtn.disabled = true;
-  finalValue.innerHTML = `<p>Good Luck!</p>`;
-  let randomDegree = Math.floor(Math.random() * (355 - 0 + 1) + 0);
-  let rotationInterval = window.setInterval(() => {
-    myChart.options.rotation = myChart.options.rotation + resultValue;
-    myChart.update();
-    if (myChart.options.rotation >= 360) {
-      count += 1;
-      resultValue -= 5;
-      myChart.options.rotation = 0;
-    } else if (count > 15 && myChart.options.rotation == randomDegree) {
-      valueGenerator(randomDegree);
-      clearInterval(rotationInterval);
-      count = 0;
-      resultValue = 101;
+  finalValue.innerHTML = `<p>Let's Go!</p>`;
+
+  async function getWheelValues() {
+    try {
+      const response = await fetch('http://localhost:7071/api/getwheelvalues', {
+        method: 'get',
+        headers: {
+          'content-type': 'application/json',
+        },
+      });
+      const data = await response.json();
+
+      myChart.data.labels = data;
+      myChart.data.datasets[0].data = data;
+      myChart.update();
+
+      if (data && data.message) {
+        finalValue.innerHTML = `<p>${data.message}</p>`;
+      }
+    } catch (error) {
+      console.error(error);
     }
-  }, 10);
-});
-
-async function getWheelValues() {
-  try {
-    const response = await fetch('http://localhost:7071/api/getwheelvalues', {
-      method: 'get',
-      headers: {
-        'content-type': 'application/json',
-      },
-    });
-
-    const data = await response.json();
-
-    // Update the wheel data with the received values
-    myChart.data.labels = data;
-    myChart.data.datasets[0].data = data;
-    myChart.update();
-
-    // Display a message if needed (modify as per your response structure)
-    if (data && data.message) {
-      finalValue.innerHTML = `<p>${data.message}</p>`;
-    }
-  } catch (error) {
-    console.error(error);
   }
-}
 
-// ... (your existing code)
+  getWheelValues().then(() => {
+    let randomDegree = Math.floor(Math.random() * (355 - 0 + 1) + 0);
+    let rotationInterval = window.setInterval(() => {
+      myChart.options.rotation = myChart.options.rotation + resultValue;
+      myChart.update();
 
-spinBtn.addEventListener("click", () => {
-  spinBtn.disabled = true;
-  finalValue.innerHTML = `<p>Good Luck!</p>`;
+      if (myChart.options.rotation >= 360) {
+        count += 1;
+        resultValue -= 5;
+        myChart.options.rotation = 0;
+      }
 
-  // Trigger the Azure Function call to get new wheel values
-  getWheelValues()
-    .then(() => {
-      // Proceed with the spinning logic as before
-      let randomDegree = Math.floor(Math.random() * (355 - 0 + 1) + 0);
-      let rotationInterval = window.setInterval(() => {
-        myChart.options.rotation = myChart.options.rotation + resultValue;
-        myChart.update();
-        if (myChart.options.rotation >= 360) {
-          count += 1;
-          resultValue -= 5;
-          myChart.options.rotation = 0;
-        } else if (count > 15 && myChart.options.rotation == randomDegree) {
-          // Modify valueGenerator to use data from the backend
-          valueGenerator(randomDegree, data);
-          clearInterval(rotationInterval);
-          count = 0;
-          resultValue = 101;
-        }
-      }, 10);
-    });
+      if (count > 15 && myChart.options.rotation >= randomDegree) {
+        valueGenerator(randomDegree, data);
+        count = 0;
+        resultValue = 101;
+        clearInterval(rotationInterval);
+      }
+    }, 10);
+  });
 });
-

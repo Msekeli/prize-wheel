@@ -11,7 +11,7 @@ const rotationValues = [
   { minDegree: 271, maxDegree: 330, value: 3 },
   { minDegree: 331, maxDegree: 360, value: 2 },
 ];
-const data = [16, 16, 16, 16, 16, 16];
+const data = '';
 var pieColors = [
   "#9336B4","#DA70D6",
 ];
@@ -24,7 +24,7 @@ let myChart = new Chart(wheel, {
     datasets: [
       {
         backgroundColor: pieColors,
-        data: data,
+        data: [60, 60, 60, 60, 60, 60],
       },
     ],
   },
@@ -79,7 +79,6 @@ spinBtn.addEventListener("click", () => {
       const data = await response.json();
 
       myChart.data.labels = data;
-      myChart.data.datasets[0].data = data;
       myChart.update();
 
       if (data && data.message) {
@@ -111,3 +110,21 @@ spinBtn.addEventListener("click", () => {
     }, 10);
   });
 });
+
+// export function secondsCountdown() {
+// 	var timeRemaining = new Date(Elements.remainingSeconds * 1000);
+// 	var hours = timeRemaining.getUTCHours();
+// 	var minutes = timeRemaining.getUTCMinutes();
+// 	var seconds = timeRemaining.getSeconds();
+
+// 	var timeString =
+// 		hours.toString().padStart(2, '0') +
+// 		'h' +
+// 		minutes.toString().padStart(2, '0') +
+// 		'm' +
+// 		seconds.toString().padStart(2, '0') +
+// 		's';
+
+// 	Elements.BTN_SPIN.innerHTML = 'Next Spin in: ' + timeString;
+// 	Elements.remainingSeconds--;
+// }

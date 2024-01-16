@@ -3,15 +3,15 @@ const wheel = document.getElementById("wheel");
 const spinBtn = document.getElementById("spin-btn");
 const finalValue = document.getElementById("final-value");
 const rotationValues = [
-  { minDegree: 0, maxDegree: 30, value: 2 },
-  { minDegree: 31, maxDegree: 90, value: 1 },
-  { minDegree: 91, maxDegree: 150, value: 6 },
-  { minDegree: 151, maxDegree: 210, value: 5 },
-  { minDegree: 211, maxDegree: 270, value: 4 },
-  { minDegree: 271, maxDegree: 330, value: 3 },
-  { minDegree: 331, maxDegree: 360, value: 2 },
+  { minDegree: 0, maxDegree: 60, value: 0 },
+  { minDegree: 61, maxDegree: 120, value: 1 },
+  { minDegree: 121, maxDegree: 180, value: 2 },
+  { minDegree: 181, maxDegree: 240, value: 3 },
+  { minDegree: 241, maxDegree: 300, value: 4 },
+  { minDegree: 301, maxDegree: 360, value: 5 }
 ];
-const data = '';
+const labels = '';
+let data = '';
 var pieColors = [
   "#9336B4","#DA70D6",
 ];
@@ -20,7 +20,7 @@ let myChart = new Chart(wheel, {
   plugins: [ChartDataLabels],
   type: "pie",
   data: {
-    labels: data,
+    labels: labels,
     datasets: [
       {
         backgroundColor: pieColors,
@@ -49,8 +49,10 @@ const valueGenerator = (angleValue, data) => {
   for (let i of rotationValues) {
     if (angleValue >= i.minDegree && angleValue <= i.maxDegree) {
       const wonAmount = data[i.value]; 
+      console.log(data);
+      console.log('won amount', wonAmount);
       finalValue.innerHTML = `<p>Congratulations! You won $${wonAmount}</p>`;
-      spinBtn.disabled = false;
+      // spinBtn.disabled = false;
       break;
     }
   }
@@ -76,7 +78,7 @@ spinBtn.addEventListener("click", () => {
           'content-type': 'application/json',
         },
       });
-      const data = await response.json();
+      data = await response.json();
 
       myChart.data.labels = data;
       myChart.update();
@@ -91,6 +93,7 @@ spinBtn.addEventListener("click", () => {
 
   getWheelValues().then(() => {
     let randomDegree = Math.floor(Math.random() * (355 - 0 + 1) + 0);
+    console.log('stop degree: ', randomDegree);
     let rotationInterval = window.setInterval(() => {
       myChart.options.rotation = myChart.options.rotation + resultValue;
       myChart.update();

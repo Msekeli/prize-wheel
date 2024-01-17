@@ -22,17 +22,17 @@ public static class GetWheelValuesFunction
             var easternTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time");
             var currentTime = TimeZoneInfo.ConvertTime(DateTime.UtcNow, easternTimeZone);
 
-            // if (currentTime.Minute % 2 == 0)
-            // {
+            if (currentTime.Minute % 2 == 0)
+            {
                 var randomValues = GenerateRandomValues(NumberOfSegments);
 
                 log.LogInformation($"Generated Wheel Values: {string.Join(", ", randomValues)}");
                 return new OkObjectResult(randomValues);
-            // }
-            // else
-            // {
-            //     return new OkObjectResult(new { Message = "Wheel may not be spun at odd-numbered minutes." });
-            // }
+            }
+            else
+            {
+                return new OkObjectResult(new { Message = "Wheel may not be spun at odd-numbered minutes." });
+            }
         }
         catch (Exception ex)
         {

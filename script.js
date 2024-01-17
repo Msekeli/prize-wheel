@@ -1,4 +1,4 @@
-// main.js
+
 const wheel = document.getElementById("wheel");
 const spinBtn = document.getElementById("spin-btn");
 const finalValue = document.getElementById("final-value");
@@ -113,21 +113,3 @@ spinBtn.addEventListener("click", () => {
     }, 10);
   });
 });
-
-// export function secondsCountdown() {
-// 	var timeRemaining = new Date(Elements.remainingSeconds * 1000);
-// 	var hours = timeRemaining.getUTCHours();
-// 	var minutes = timeRemaining.getUTCMinutes();
-// 	var seconds = timeRemaining.getSeconds();
-
-// 	var timeString =
-// 		hours.toString().padStart(2, '0') +
-// 		'h' +
-// 		minutes.toString().padStart(2, '0') +
-// 		'm' +
-// 		seconds.toString().padStart(2, '0') +
-// 		's';
-
-// 	Elements.BTN_SPIN.innerHTML = 'Next Spin in: ' + timeString;
-// 	Elements.remainingSeconds--;
-// }

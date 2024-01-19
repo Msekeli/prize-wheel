@@ -6,9 +6,9 @@ document.addEventListener("DOMContentLoaded", function () {
   // Function to update the countdown display
   const updateCountdown = (seconds) => {
     if (seconds > 0) {
-      countdownDiv.innerHTML = `<p>Next valid spin in ${seconds} seconds</p>`;
+      countdownDiv.innerHTML = `<h2>Next valid spin in ${seconds} seconds</h2>`;
     } else {
-      countdownDiv.innerHTML = `<p>You may spin the wheel!</p>`;
+      countdownDiv.innerHTML = `<h2>You may spin the wheel!</h2>`;
       spinBtn.disabled = false;
     }
   };

@@ -12,6 +12,12 @@
     background-repeat: no-repeat;
     background-size: cover;
   }
+  #countdown{
+    margin-top: 25px;
+    background-color: transparent;
+    justify-content: center;
+    text-align: center;
+  }
   .wrapper {
     width: 90%;
     max-width: 34.37em;

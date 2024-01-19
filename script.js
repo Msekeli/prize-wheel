@@ -1,4 +1,3 @@
-// main.js
 const wheel = document.getElementById("wheel");
 const spinBtn = document.getElementById("spin-btn");
 const finalValue = document.getElementById("final-value");
@@ -11,7 +10,7 @@ const rotationValues = [
   { minDegree: 301, maxDegree: 360, value: 5 }
 ];
 const labels = '';
-let data = '';  // This variable holds the wheel data
+let data = '';  
 
 var pieColors = [
   "#9336B4", "#DA70D6",
@@ -25,7 +24,7 @@ let myChart = new Chart(wheel, {
     datasets: [
       {
         backgroundColor: pieColors,
-        data: [60, 60, 60, 60, 60, 60],
+        data: [1, 1, 1, 1, 1, 1],
       },
     ],
   },

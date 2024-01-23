@@ -111,7 +111,7 @@ spinBtn.addEventListener("click", () => {
   spinBtn.disabled = true;
   finalValue.innerHTML = `<p>Let's Go!</p>`;
 
-  let randomDegree = Math.floor(Math.random() * (355 - 0 + 1) + 0);
+  let randomDegree = 50;
   console.log('stop degree: ', randomDegree);
   let rotationInterval = window.setInterval(() => {
     myChart.options.rotation = myChart.options.rotation + resultValue;

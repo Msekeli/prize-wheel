@@ -1,4 +1,3 @@
-// countdown.js
 document.addEventListener("DOMContentLoaded", function () {
   const countdownDiv = document.getElementById("countdown");
   const spinBtn = document.getElementById("spin-btn");
@@ -8,6 +7,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (seconds > 0) {
       countdownDiv.innerHTML = `<h2>Next valid spin in ${seconds} seconds</h2>`;
     } else {
+      updateWheelValues;
       countdownDiv.innerHTML = `<h2>You may spin the wheel!</h2>`;
       spinBtn.disabled = false;
     }

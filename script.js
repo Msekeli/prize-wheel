@@ -49,10 +49,7 @@ const valueGenerator = (angleValue, wheelData) => {
   for (let i of rotationValues) {
     if (angleValue >= i.minDegree && angleValue <= i.maxDegree) {
       const wonAmount = wheelData[i.value];
-      console.log(wheelData);
-      console.log('won amount', wonAmount);
       finalValue.innerHTML = `<p>Congratulations! You won $${wonAmount}</p>`;
-      // spinBtn.disabled = false;
       break;
     }
   }
@@ -65,7 +62,6 @@ const normalizeData = (wheelData) => {
   const total = wheelData.reduce((acc, value) => acc + value, 0);
   return wheelData.map(value => (value / total) * 100);
 };
-
 // Function to update the wheel with values from the API
 const updateWheelValues = async () => {
   await getWheelValues();
@@ -91,7 +87,6 @@ const getWheelValues = async () => {
     console.error(error);
   }
 };
-
 // Call the update function on page load
 updateWheelValues();
 
@@ -101,24 +96,19 @@ const isOddMinute = () => {
   const minutes = now.getMinutes();
   return minutes % 2 !== 0;
 };
-
 // Disable the spin button on odd-numbered minutes
 if (isOddMinute()) {
   spinBtn.disabled = true;
 }
-
 let isZero = false;
-
 // Function to check seconds
 const secondsCheck = () => {
   const nowSeconds = new Date();
   const seconds = nowSeconds.getSeconds();
-
   if (seconds == 0) {
     updateWheelValues();
   }
 };
-
 secondsCheck;
 
 spinBtn.addEventListener("click", () => {
@@ -126,7 +116,6 @@ spinBtn.addEventListener("click", () => {
   finalValue.innerHTML = `<p>Let's Go!</p>`;
 
   let randomDegree = 50;
-  console.log('stop degree: ', randomDegree);
   let rotationInterval = window.setInterval(() => {
     myChart.options.rotation = myChart.options.rotation + resultValue;
     myChart.update();

@@ -107,6 +107,20 @@ if (isOddMinute()) {
   spinBtn.disabled = true;
 }
 
+let isZero = false;
+
+// Function to check seconds
+const secondsCheck = () => {
+  const nowSeconds = new Date();
+  const seconds = nowSeconds.getSeconds();
+
+  if (seconds == 0) {
+    updateWheelValues();
+  }
+};
+
+secondsCheck;
+
 spinBtn.addEventListener("click", () => {
   spinBtn.disabled = true;
   finalValue.innerHTML = `<p>Let's Go!</p>`;
@@ -131,3 +145,5 @@ spinBtn.addEventListener("click", () => {
     }
   }, 10);
 });
+
+setInterval(secondsCheck, 1000);

@@ -50,18 +50,7 @@ public static class GetWheelValuesFunction
         {
             values[i] = RandomGenerator.Next(MaxPrizeAmount);
         }
-        ShuffleArray(values);
         return values;
     }
 
-    private static void ShuffleArray<T>(T[] array)
-    {
-        for (int i = array.Length - 1; i > 0; i--)
-        {
-            int j = RandomGenerator.Next(0, i + 1);
-            T temp = array[i];
-            array[i] = array[j];
-            array[j] = temp;
-        }
-    }
 }

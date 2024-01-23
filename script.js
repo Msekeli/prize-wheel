@@ -1,6 +1,61 @@
+document.addEventListener("DOMContentLoaded", function () {
+  const countdownDiv = document.getElementById("countdown");
+  const spinBtn = document.getElementById("spin-btn");
+
+  // Function to update the countdown display
+  const updateCountdown = (seconds) => {
+    if (seconds > 0) {
+      countdownDiv.innerHTML = `<h2>Next valid spin in ${seconds} seconds</h2>`;
+    } else {
+      countdownDiv.innerHTML = `<h2>You may spin the wheel!</h2>`;
+      spinBtn.disabled = false;
+    }
+  };
+
+  // Function to start the countdown
+  const startCountdown = (remainingSeconds) => {
+    let countdownInterval = setInterval(() => {
+      updateCountdown(remainingSeconds);
+
+      if (remainingSeconds <= 0) {
+        clearInterval(countdownInterval);
+      }
+
+      remainingSeconds--;
+    }, 1000);
+  };
+
+  // Function to calculate the remaining seconds until the next even-numbered minute using day.js
+  const calculateRemainingSeconds = () => {
+    const currentTime = dayjs(); // Use the current time from day.js
+    const currentMinute = currentTime.minute();
+    const isOddMinute = currentMinute % 2 !== 0;
+
+    if (isOddMinute) {
+      const currentSecond = currentTime.second();
+      const secondsInMinute = 60;
+      const secondsUntilNextEvenMinute = (secondsInMinute - (currentSecond % secondsInMinute)) % secondsInMinute;
+      return secondsUntilNextEvenMinute;
+    } else {
+      return 0; // If it's an even-numbered minute, no need to display countdown
+    }
+  };
+
+  // Fetch the initial countdown and start it
+  const remainingSeconds = calculateRemainingSeconds();
+  updateCountdown(remainingSeconds);
+
+  if (remainingSeconds > 0) {
+    startCountdown(remainingSeconds);
+  } else {
+    spinBtn.disabled = false;
+  }
+});
+
+
 const wheel = document.getElementById("wheel");
 const spinBtn = document.getElementById("spin-btn");
-const finalValue = document.getElementById("final-value");
+let finalValue = document.getElementById("final-value");
 const rotationValues = [
   { minDegree: 0, maxDegree: 60, value: 0 },
   { minDegree: 61, maxDegree: 120, value: 1 },
@@ -58,13 +113,10 @@ const valueGenerator = (angleValue, wheelData) => {
 let count = 0;
 let resultValue = 101;
 
-const normalizeData = (wheelData) => {
-  const total = wheelData.reduce((acc, value) => acc + value, 0);
-  return wheelData.map(value => (value / total) * 100);
-};
 // Function to update the wheel with values from the API
 const updateWheelValues = async () => {
   await getWheelValues();
+  finalValue = document.getElementById("final-value");
   myChart.data.labels = data;
   myChart.update();
 };
@@ -107,6 +159,7 @@ const secondsCheck = () => {
   const seconds = nowSeconds.getSeconds();
   if (seconds == 0) {
     updateWheelValues();
+    finalValue.innerHTML = `<p>Click On The Spin Button To Start</p>`;
   }
 };
 secondsCheck;

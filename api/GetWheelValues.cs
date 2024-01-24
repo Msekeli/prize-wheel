@@ -8,9 +8,8 @@ using Microsoft.Extensions.Logging;
 public static class GetWheelValuesFunction
 {
     private static readonly Random RandomGenerator = new Random();
-    private const int NumberOfSegments = 6; 
-
-    private const int MaxPrizeAmount = 501; 
+    private const int NumberOfSegments = 6;
+    private const int MaxPrizeAmount = 500;
 
     [FunctionName("GetWheelValues")]
     public static IActionResult Run(
@@ -19,11 +18,20 @@ public static class GetWheelValuesFunction
     {
         try
         {
+            // Retrieve userId from the query parameters
+            string userId = req.Query["userId"];
+
+            // Get the current time in Eastern Time Zone
             var easternTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time");
             var currentTime = TimeZoneInfo.ConvertTime(DateTime.UtcNow, easternTimeZone);
 
+            // Log userId for tracking
+            log.LogInformation($"GetWheelValues - userId: {userId}");
+
+            // Check if the current minute is even
             if (currentTime.Minute % 2 == 0)
             {
+                // Generate random values for the wheel
                 var randomValues = GenerateRandomValues(NumberOfSegments);
 
                 log.LogInformation($"Generated Wheel Values: {string.Join(", ", randomValues)}");
@@ -31,19 +39,21 @@ public static class GetWheelValuesFunction
             }
             else
             {
+                // Return a message if wheel spin is not allowed at odd-numbered minutes
                 return new OkObjectResult(new { Message = "Wheel may not be spun at odd-numbered minutes." });
             }
         }
         catch (Exception ex)
         {
-
-            log.LogError($"Error in GetWheelValuesFunction: {ex}");
+            // Log and return a 500 status code in case of an exception
+            log.LogError($"Error in GetWheelValuesFunction: {ex.Message}\nStackTrace: {ex.StackTrace}");
             return new StatusCodeResult(500);
         }
     }
 
     private static int[] GenerateRandomValues(int numberOfSegments)
     {
+        // Generate random prize values for the wheel segments
         var values = new int[numberOfSegments];
 
         for (int i = 0; i < numberOfSegments; i++)
@@ -52,5 +62,4 @@ public static class GetWheelValuesFunction
         }
         return values;
     }
-
 }

@@ -34,8 +34,9 @@ public static class GetWheelValuesFunction
                 // Generate random values for the wheel
                 var randomValues = GenerateRandomValues(NumberOfSegments);
 
-                log.LogInformation($"Generated Wheel Values: {string.Join(", ", randomValues)}");
+                log.LogInformation($"Generated Wheel Values: ${string.Join(", $", randomValues)}");
                 return new OkObjectResult(randomValues);
+
             }
             else
             {

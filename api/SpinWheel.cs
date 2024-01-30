@@ -5,17 +5,17 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 
-public static class SpinWheelFunction 
+public static class SpinWheelFunction
 {
-  
+
   [FunctionName("SpinWheel")]
   public static IActionResult Run(
     [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)] HttpRequest req,
     ILogger log)
   {
-    try 
+    try
     {
-      // Retrieve userId from the query parameters  
+      // Retrieve userId from the query parameters   
       string userId = req.Query["userId"];
 
       // Get the current time in Eastern Time Zone
@@ -25,16 +25,15 @@ public static class SpinWheelFunction
       // Log userId for tracking
       log.LogInformation($"SpinWheel - userId: {userId}");
 
-      // Check if the current minute is divisible by 3
-      if (currentTime.Minute % 3 == 0)
+      // Check if the current minute is divisible by 3 and not even number
+      if (currentTime.Minute % 3 == 0 && currentTime.Minute % 2 != 0)
       {
-        // Throw an exception if wheel spin is not expected on minutes divisible by 3
-        throw new InvalidOperationException("Wheel should not be spun on minutes divisible by 3.");  
+         return new OkObjectResult(new { Message = "Can't spin the whill now. Try again later." });
       }
       else
       {
         // Allow the wheel to be spon if the current minute is not divisible by 3
-        return new OkObjectResult(new { Message = "Spin the wheel"});
+        return new OkObjectResult(new { Message = "Enable the button to spin the wheel." });
       }
     }
     catch (Exception ex)

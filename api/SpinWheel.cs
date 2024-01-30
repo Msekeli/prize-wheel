@@ -7,9 +7,7 @@ using Microsoft.Extensions.Logging;
 
 public static class SpinWheelFunction 
 {
-  private static readonly Random RandomGenerator = new Random();
-  private const int MaxPrizeAmount = 500;
-
+  
   [FunctionName("SpinWheel")]
   public static IActionResult Run(
     [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)] HttpRequest req,
@@ -35,10 +33,8 @@ public static class SpinWheelFunction
       }
       else
       {
-        // Return a random prize if the current minute is not divisible by 3
-        var randomPrize = RandomGenerator.Next(MaxPrizeAmount);
-        log.LogInformation($"Wheel Spun: Prize - {randomPrize}");
-        return new OkObjectResult(new { Prize = randomPrize }); 
+        // Allow the wheel to be spon if the current minute is not divisible by 3
+        return new OkObjectResult(new { Message = "Spin the wheel"});
       }
     }
     catch (Exception ex)

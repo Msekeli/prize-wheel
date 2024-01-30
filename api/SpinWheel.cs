@@ -24,11 +24,13 @@ public static class SpinWheelFunction
 
       // Log userId for tracking
       log.LogInformation($"SpinWheel - userId: {userId}");
+      Console.WriteLine(currentTime.Minute %3 );
+      Console.WriteLine(currentTime.Minute %2 );
 
       // Check if the current minute is divisible by 3 and not even number
-      if (currentTime.Minute % 3 == 0 && currentTime.Minute % 2 != 0)
+      if (currentTime.Minute % 3 == 0)
       {
-         return new OkObjectResult(new { Message = "Can't spin the whill now. Try again later." });
+         return new OkObjectResult(new { Message = "Can't spin the wheel now. Try again later." });
       }
       else
       {

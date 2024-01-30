@@ -10,7 +10,7 @@ const rotationValues = [
   { minDegree: 301, maxDegree: 360, value: 5 }
 ];
 const labels = '';
-let data = '';  
+let wheelValues = '';
 
 var pieColors = [
   "#9336B4", "#DA70D6",
@@ -49,7 +49,7 @@ const valueGenerator = (angleValue, wheelData) => {
   for (let i of rotationValues) {
     if (angleValue >= i.minDegree && angleValue <= i.maxDegree) {
       const wonAmount = wheelData[i.value];
-      finalValue.innerHTML = `<p>Congratulations! You won $${wonAmount}</p>`;
+      finalValue.innerHTML = `<p>Congratulations! You won ${wonAmount}</p>`;
       break;
     }
   }
@@ -62,7 +62,7 @@ let resultValue = 101;
 const updateWheelValues = async () => {
   await getWheelValues();
   finalValue = document.getElementById("final-value");
-  myChart.data.labels = data;
+  myChart.data.labels = wheelValues;
   myChart.update();
 };
 
@@ -73,12 +73,14 @@ const getWheelValues = async () => {
       method: 'get',
       headers: {
         'content-type': 'application/json',
-      },
+      }
     });
-    data = await response.json();
+    wheelValues = await response.json();
+    var values = wheelValues;
+    console.log(values)
 
-    if (data && data.message) {
-      finalValue.innerHTML = `<p>${data.message}</p>`;
+    if (wheelValues && wheelValues.message) {
+      finalValue.innerHTML = `<p>${wheelValues.message}</p>`;
     }
   } catch (error) {
     console.error(error);
@@ -97,6 +99,7 @@ const isOddMinute = () => {
 if (isOddMinute()) {
   spinBtn.disabled = true;
 }
+
 let isZero = false;
 // Function to check seconds
 const secondsCheck = () => {
@@ -104,7 +107,7 @@ const secondsCheck = () => {
   const seconds = nowSeconds.getSeconds();
   if (seconds == 0) {
     updateWheelValues();
-    finalValue.innerHTML = `<p>Click On The Spin Button To Start</p>`;
+    finalValue.innerHTML = `<p>Please wait for the rigth time</p>`;
   }
 };
 secondsCheck;
@@ -113,7 +116,7 @@ spinBtn.addEventListener("click", () => {
   spinBtn.disabled = true;
   finalValue.innerHTML = `<p>Let's Go!</p>`;
 
-  let randomDegree = 50;
+  let stopDegree = 50;
   let rotationInterval = window.setInterval(() => {
     myChart.options.rotation = myChart.options.rotation + resultValue;
     myChart.update();
@@ -124,8 +127,8 @@ spinBtn.addEventListener("click", () => {
       myChart.options.rotation = 0;
     }
 
-    if (count > 15 && myChart.options.rotation >= randomDegree) {
-      valueGenerator(randomDegree, data);
+    if (count > 15 && myChart.options.rotation >= stopDegree) {
+      valueGenerator(stopDegree, wheelValues);
       count = 0;
       resultValue = 101;
       clearInterval(rotationInterval);

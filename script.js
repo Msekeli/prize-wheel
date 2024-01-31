@@ -1,6 +1,6 @@
 const wheel = document.getElementById("wheel");
 const spinBtn = document.getElementById("spin-btn");
-let finalValue = document.getElementById("final-value");
+let mesageBox = document.getElementById("message-box");
 const rotationValues = [
   { minDegree: 0, maxDegree: 60, value: 0 },
   { minDegree: 61, maxDegree: 120, value: 1 },
@@ -49,7 +49,8 @@ const valueGenerator = (angleValue, wheelData) => {
   for (let i of rotationValues) {
     if (angleValue >= i.minDegree && angleValue <= i.maxDegree) {
       const wonAmount = wheelData[i.value];
-      finalValue.innerHTML = `<p>Congratulations! You won ${wonAmount}</p>`;
+      console.log(wonAmount);
+      mesageBox.innerHTML = `<p>Congratulations! You won ${wonAmount}</p>`;
       break;
     }
   }
@@ -70,7 +71,7 @@ const generateRandomGuid = () => {
 // Function to update the wheel with values from the API
 const updateWheelValues = async () => {
   await getWheelValues();
-  finalValue = document.getElementById("final-value");
+  mesageBox  = document.getElementById("message-box");
   myChart.data.labels = wheelValues;
   myChart.update();
 };
@@ -89,7 +90,7 @@ const getWheelValues = async () => {
     console.log(values)
 
     if (wheelValues && wheelValues.message) {
-      finalValue.innerHTML = `<p>${wheelValues.message}</p>`;
+      mesageBox.innerHTML = `<p>${wheelValues.message}</p>`;
     }
   } catch (error) {
     console.error(error);
@@ -116,14 +117,14 @@ const secondsCheck = () => {
   const seconds = nowSeconds.getSeconds();
   if (seconds == 0) {
     updateWheelValues();
-    finalValue.innerHTML = `<p>Please wait for the rigth time</p>`;
+    mesageBox.innerHTML = `<p>Please wait for the rigth time</p>`;
   }
 };
 secondsCheck;
 
 spinBtn.addEventListener("click", () => {
   spinBtn.disabled = true;
-  finalValue.innerHTML = `<p>Let's Go!</p>`;
+  mesageBox.innerHTML = `<p>Let's Go!</p>`;
 
   let stopDegree = 50;
   let rotationInterval = window.setInterval(() => {

@@ -91,7 +91,7 @@ const getWheelValues = async () => {
     });
     wheelValues = await response.json();
     var values = wheelValues;
-    console.log(values)
+    console.log(wheelValues)
 
     if (wheelValues && wheelValues.message) {
       finalValue.innerHTML = `<p>${wheelValues.message}</p>`;

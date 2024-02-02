@@ -1,39 +1,48 @@
 using System;
+using System.IO;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 
 public static class SpinWheelFunction
 {
-
   [FunctionName("SpinWheel")]
-  public static IActionResult Run(
-    [HttpTrigger(AuthorizationLevel.Function,"post", Route = "prizewheel/spin")] HttpRequest req,
+  public static async Task<IActionResult> Run(
+    [HttpTrigger(AuthorizationLevel.Function, "post", Route = "prizewheel/spin")] HttpRequest req,
     ILogger log)
   {
     try
     {
-    
       // Get the current time in Eastern Time Zone
       var easternTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time");
       var currentTime = TimeZoneInfo.ConvertTime(DateTime.UtcNow, easternTimeZone);
 
-      // Log userId for tracking
-      //log.LogInformation($"SpinWheel - userId: {userId}");
-      Console.WriteLine("Current time: " + currentTime.Minute %3 );
-      Console.WriteLine("Current time 2: " + currentTime.Minute %2 );
-
-      // Check if the current minute is divisible by 3 and not even number
+      // Check if the current minute is divisible by 3
       if (currentTime.Minute % 3 == 0)
       {
-         return new OkObjectResult(new { Message = "Can't spin the wheel now. Try again later." });
+        throw new Exception("Unexpected spin request. Wheel cannot be spun on these minutes.");
       }
       else
       {
-        // Allow the wheel to be spon if the current minute is not divisible by 3
-        return new OkObjectResult(new { Message = "Enable the button to spin the wheel." });
+        // Read the request body
+        string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
+        dynamic data = JsonConvert.DeserializeObject(requestBody);
+
+        // Use the values from the request body
+        var wheelValues = data?.wheelValues;
+
+        // Pick a random value from wheelValues
+        var random = new Random();
+        var prizeIndex = random.Next(wheelValues.Count);
+        var prizeValue = wheelValues[prizeIndex];
+        Console.WriteLine($"Selected Prize Value: {prizeValue}");
+
+        // Return the selected prize value
+        return new OkObjectResult(new { PrizeValue = prizeValue });
       }
     }
     catch (Exception ex)

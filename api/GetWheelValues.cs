@@ -13,7 +13,7 @@ public static class GetWheelValuesFunction
 
     [FunctionName("GetWheelValues")]
     public static IActionResult Run(
-        [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)] HttpRequest req,
+        [HttpTrigger(AuthorizationLevel.Function, "post", Route = "prizewheel/getvalues")] HttpRequest req,
         ILogger log)
     {
         try

@@ -10,22 +10,26 @@ public static class SpinWheelFunction
 
   [FunctionName("SpinWheel")]
   public static IActionResult Run(
-    [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)] HttpRequest req,
+    [HttpTrigger(AuthorizationLevel.Function,"get", Route = "prizewheel/spin")] HttpRequest req,
     ILogger log)
   {
     try
     {
+      
       // Retrieve userId from the query parameters   
-      string userId = req.Query["userId"];
+      //string userId = req.Query["userId"];
+
+      
+
 
       // Get the current time in Eastern Time Zone
       var easternTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time");
       var currentTime = TimeZoneInfo.ConvertTime(DateTime.UtcNow, easternTimeZone);
 
       // Log userId for tracking
-      log.LogInformation($"SpinWheel - userId: {userId}");
-      Console.WriteLine(currentTime.Minute %3 );
-      Console.WriteLine(currentTime.Minute %2 );
+      //log.LogInformation($"SpinWheel - userId: {userId}");
+      Console.WriteLine("Current time: " + currentTime.Minute %3 );
+      Console.WriteLine("Current time 2: " + currentTime.Minute %2 );
 
       // Check if the current minute is divisible by 3 and not even number
       if (currentTime.Minute % 3 == 0)

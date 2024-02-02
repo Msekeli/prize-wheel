@@ -12,8 +12,8 @@ public static class GetWheelValuesFunction
     private const int MaxPrizeAmount = 500;
 
     [FunctionName("GetWheelValues")]
-    public static IActionResult Run(
-        [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)] HttpRequest req,
+   public static IActionResult Run(
+        [HttpTrigger(AuthorizationLevel.Function, "post", Route = "prizewheel/getvalues")] HttpRequest req,
         ILogger log)
     {
         try

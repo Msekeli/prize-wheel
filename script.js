@@ -69,8 +69,8 @@ const updateWheelValues = async () => {
 // Function to get wheel values from the API
 const getWheelValues = async () => {
   try {
-    const response = await fetch('http://localhost:7071/api/getwheelvalues', {
-      method: 'get',
+    const response = await fetch('http://localhost:7071/api/prizewheel/getvalues', {
+      method: 'post',
       headers: {
         'content-type': 'application/json',
       }
@@ -86,9 +86,33 @@ const getWheelValues = async () => {
     console.error(error);
   }
 };
+//----------------------------------------------
+
+function Spin(){
+  acceptSpin();
+  console.log("Spinning...");
+}
+const acceptSpin = async () => {
+  try {
+     fetch(' http://localhost:7071/api/prizewheel/spin', {
+      method: 'post',
+      headers: {
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify(wheelValues)
+    });
+
+
+    if (wheelValues && wheelValues.message) {
+      finalValue.innerHTML = `<p>${wheelValues.message}</p>`;
+    }
+  } catch (error) {
+    console.error(error);
+  }
+};
 // Call the update function on page load
 updateWheelValues();
-
+//-------------------------------------------------------
 // Function to check if it's an odd-numbered minute
 const isOddMinute = () => {
   const now = new Date();

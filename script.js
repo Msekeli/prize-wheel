@@ -45,6 +45,11 @@ let myChart = new Chart(wheel, {
   },
 });
 
+function Spin(){
+  acceptSpin();
+  console.log("Spinning...");
+}
+
 const valueGenerator = (angleValue, wheelData) => {
   for (let i of rotationValues) {
     if (angleValue >= i.minDegree && angleValue <= i.maxDegree) {
@@ -78,8 +83,8 @@ const updateWheelValues = async () => {
 // Function to get wheel values from the API
 const getWheelValues = async () => {
   try {
-    const response = await fetch('http://localhost:7071/api/getwheelvalues', {
-      method: 'get',
+    const response = await fetch(' http://localhost:7071/api/prizewheel/getvalues', {
+      method: 'post',
       headers: {
         'content-type': 'application/json',
       }
@@ -95,8 +100,31 @@ const getWheelValues = async () => {
     console.error(error);
   }
 };
+wheelValues = await response.json();
+var values = wheelValues;
+console.log(values)
+
+const acceptSpin = async () => {
+  try {
+    const response = await fetch(' http://localhost:7071/api/prizewheel/spin', {
+      method: 'get',
+      headers: {
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify(values)
+    });
+
+
+    if (wheelValues && wheelValues.message) {
+      finalValue.innerHTML = `<p>${wheelValues.message}</p>`;
+    }
+  } catch (error) {
+    console.error(error);
+  }
+};
 // Call the update function on page load
 updateWheelValues();
+
 
 // Function to check if it's an odd-numbered minute
 const isOddMinute = () => {

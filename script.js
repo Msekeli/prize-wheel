@@ -95,8 +95,7 @@ const getWheelValues = async () => {
     console.error(error);
   }
 };
-//----------------------------------------------
-
+//--------------------------------------------
 // Function to spin the wheel
 async function spinWheel() {
   try {
@@ -105,7 +104,7 @@ async function spinWheel() {
           headers: {
               'Content-Type': 'application/json'
           },
-          body: JSON.stringify({ wheelValues: [1, 2, 3, 4, 5, 6] })
+          body: JSON.stringify({ wheelValues: wheelValues })
       });
 
       if (!response.ok) {
@@ -113,16 +112,23 @@ async function spinWheel() {
       }
 
       const data = await response.json();
-      console.log('Picked Prize Value:', data.PrizeValue);
-      // Handle the picked prize value as needed
+      console.log('Response Data:', data); // Log the entire response data
+      console.log('Picked Prize Value:', data); // Ensure this value is correct
+      
   } catch (error) {
       console.error('Error spinning the wheel:', error);
   }
 }
 
-// Call spinWheel to test the spinning functionality
-spinWheel();
-
+// Function to handle button click event
+document.getElementById("spin-btn").addEventListener("click", async function() {
+    try {
+        await spinWheel(); // Call the spinWheel() function to initiate spinning
+        console.log("Spinning...");
+    } catch (error) {
+        console.error('Error spinning the wheel:', error);
+    }
+});
 
 
 // Call the update function on page load

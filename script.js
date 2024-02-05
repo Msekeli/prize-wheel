@@ -45,15 +45,10 @@ let myChart = new Chart(wheel, {
   },
 });
 
-function Spin(){
-  acceptSpin();
-  console.log("Spinning...");
-}
-
 const valueGenerator = (angleValue, wheelData) => {
   for (let i of rotationValues) {
     if (angleValue >= i.minDegree && angleValue <= i.maxDegree) {
-      const wonAmount = wheelData[i.value];
+      const wonAmount = "$" + wheelData[i.value];
       finalValue.innerHTML = `<p>Congratulations! You won ${wonAmount}</p>`;
       break;
     }
@@ -84,7 +79,7 @@ const updateWheelValues = async () => {
 const getWheelValues = async () => {
   try {
     const response = await fetch('http://localhost:7071/api/prizewheel/getvalues', {
-      method: 'post',
+      method: 'get',
       headers: {
         'content-type': 'application/json',
       }
@@ -102,28 +97,34 @@ const getWheelValues = async () => {
 };
 //----------------------------------------------
 
-function Spin(){
-  acceptSpin();
-  console.log("Spinning...");
-}
-const acceptSpin = async () => {
+// Function to spin the wheel
+async function spinWheel() {
   try {
-     fetch(' http://localhost:7071/api/prizewheel/spin', {
-      method: 'post',
-      headers: {
-        'content-type': 'application/json',
-      },
-      body: JSON.stringify(wheelValues)
-    });
+      const response = await fetch('http://localhost:7071/api/prizewheel/spin', {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ wheelValues: [1, 2, 3, 4, 5, 6] })
+      });
 
+      if (!response.ok) {
+          throw new Error('Failed to spin the wheel');
+      }
 
-    if (wheelValues && wheelValues.message) {
-      finalValue.innerHTML = `<p>${wheelValues.message}</p>`;
-    }
+      const data = await response.json();
+      console.log('Picked Prize Value:', data.PrizeValue);
+      // Handle the picked prize value as needed
   } catch (error) {
-    console.error(error);
+      console.error('Error spinning the wheel:', error);
   }
-};
+}
+
+// Call spinWheel to test the spinning functionality
+spinWheel();
+
+
+
 // Call the update function on page load
 updateWheelValues();
 //-------------------------------------------------------

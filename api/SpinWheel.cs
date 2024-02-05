@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -7,49 +8,50 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
-public static class SpinWheelFunction
-{
-  [FunctionName("SpinWheel")]
-  public static async Task<IActionResult> Run(
-    [HttpTrigger(AuthorizationLevel.Function, "post", Route = "prizewheel/spin")] HttpRequest req,
-    ILogger log)
-  {
-    try
+    public static class SpinWheelFunction
     {
-      // Get the current time in Eastern Time Zone
-      var easternTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time");
-      var currentTime = TimeZoneInfo.ConvertTime(DateTime.UtcNow, easternTimeZone);
+        [FunctionName("SpinWheel")]
+        public static async Task<IActionResult> Run(
+            [HttpTrigger(AuthorizationLevel.Function, "post", Route = "prizewheel/spin")] HttpRequest req,
+            ILogger log)
+        {
+            try
+            {
+                // Read the request body
+                string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
+                dynamic data = JsonConvert.DeserializeObject(requestBody);
 
-      // Check if the current minute is divisible by 3
-      if (currentTime.Minute % 3 == 0)
-      {
-        throw new Exception("Unexpected spin request. Wheel cannot be spun on these minutes.");
-      }
-      else
-      {
-        // Read the request body
-        string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-        dynamic data = JsonConvert.DeserializeObject(requestBody);
+                // Use the values from the request body
+                var wheelValues = data?.wheelValues;
+                log.LogInformation($"Received wheel values: {JsonConvert.SerializeObject(wheelValues)}");
 
-        // Use the values from the request body
-        var wheelValues = data?.wheelValues;
+                // Ensure wheelValues is a valid array
+                if (wheelValues != null && wheelValues is JArray && ((JArray)wheelValues).Children().Count() > 0)
+                {
+                    // Pick a random value from wheelValues
+                    var random = new Random();
+                    var jsonArray = (JArray)wheelValues;
+                    var prizeIndex = random.Next(jsonArray.Children().Count());
+                    var prizeValue = jsonArray[prizeIndex];
 
-        // Pick a random value from wheelValues
-        var random = new Random();
-        var prizeIndex = random.Next(wheelValues.Count);
-        var prizeValue = wheelValues[prizeIndex];
-        Console.WriteLine($"Selected Prize Value: {prizeValue}");
+                    // Return the selected prize value
+                    return new OkObjectResult(new { PrizeValue = prizeValue });
+                }
+                else
+                {
+                    // Handle empty or invalid wheelValues array
+                    throw new Exception("Invalid or empty wheel values array.");
+                }
 
-        // Return the selected prize value
-        return new OkObjectResult(new { PrizeValue = prizeValue });
-      }
+            }
+            catch (Exception ex)
+            {
+                // Log and return a 500 status code in case of an exception
+                log.LogError($"Error in SpinWheelFunction: {ex.Message}\nStackTrace: {ex.StackTrace}");
+                return new StatusCodeResult(500);
+            }
+        }
     }
-    catch (Exception ex)
-    {
-      // Log and return a 500 status code in case of an exception
-      log.LogError($"Error in SpinWheelFunction: {ex.Message}\nStackTrace: {ex.StackTrace}");
-      return new StatusCodeResult(500);
-    }
-  }
-}
+

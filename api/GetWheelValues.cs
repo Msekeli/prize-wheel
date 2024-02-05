@@ -12,8 +12,8 @@ public static class GetWheelValuesFunction
     private const int MaxPrizeAmount = 500;
 
     [FunctionName("GetWheelValues")]
-   public static IActionResult Run(
-        [HttpTrigger(AuthorizationLevel.Function, "post", Route = "prizewheel/getvalues")] HttpRequest req,
+    public static IActionResult Run(
+        [HttpTrigger(AuthorizationLevel.Function, "get", Route = "prizewheel/getvalues")] HttpRequest req,
         ILogger log)
     {
         try
@@ -34,9 +34,8 @@ public static class GetWheelValuesFunction
                 // Generate random values for the wheel
                 var randomValues = GenerateRandomValues(NumberOfSegments);
 
-                log.LogInformation($"Generated Wheel Values: ${string.Join(", $", randomValues)}");
+                log.LogInformation($"$Generated Wheel Values: {string.Join(", ", randomValues)}");
                 return new OkObjectResult(randomValues);
-
             }
             else
             {

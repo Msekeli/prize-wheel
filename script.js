@@ -45,19 +45,6 @@ let myChart = new Chart(wheel, {
   },
 });
 
-const valueGenerator = (angleValue, wheelData) => {
-  for (let i of rotationValues) {
-    if (angleValue >= i.minDegree && angleValue <= i.maxDegree) {
-      const wonAmount = "$" + wheelData[i.value];
-      finalValue.innerHTML = `<p>Congratulations! You won ${wonAmount}</p>`;
-      break;
-    }
-  }
-};
-
-let count = 0;
-let resultValue = 101;
-
 // Function to generate a random GUID for userId
 const generateRandomGuid = () => {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
@@ -67,13 +54,6 @@ const generateRandomGuid = () => {
   });
 };
 
-// Function to update the wheel with values from the API
-const updateWheelValues = async () => {
-  await getWheelValues();
-  finalValue = document.getElementById("final-value");
-  myChart.data.labels = wheelValues;
-  myChart.update();
-};
 
 // Function to get wheel values from the API
 const getWheelValues = async () => {
@@ -95,8 +75,43 @@ const getWheelValues = async () => {
     console.error(error);
   }
 };
-//--------------------------------------------
-// Function to spin the wheel
+// Function to update the wheel with values from the API
+const updateWheelValues = async () => {
+  await getWheelValues();
+  finalValue = document.getElementById("final-value");
+  myChart.data.labels = wheelValues;
+  myChart.update();
+};
+// Call the update function on page load
+updateWheelValues();
+
+//--------------------------------------------===============================================================================----------------/////
+
+// Function to check if it's an odd-numbered minute
+const isOddMinute = () => {
+  const now = new Date();
+  const minutes = now.getMinutes();
+  return minutes % 2 !== 0;
+};
+// Disable the spin button on odd-numbered minutes
+if (isOddMinute()) {
+  spinBtn.disabled = true;
+}
+
+let isZero = false;
+// Function to check seconds
+const secondsCheck = () => {
+  const nowSeconds = new Date();
+  const seconds = nowSeconds.getSeconds();
+  if (seconds == 0) {
+    updateWheelValues();
+    finalValue.innerHTML = `<p>Please wait for the rigth time</p>`;
+  }
+};
+secondsCheck;
+setInterval(secondsCheck, 1000);
+//-======================----------------------=============----------------------------==============================-----------
+// Function to spin the wheel***************************************************
 async function spinWheel() {
   try {
       const response = await fetch('http://localhost:7071/api/prizewheel/spin', {
@@ -131,61 +146,45 @@ document.getElementById("spin-btn").addEventListener("click", async function() {
 
         spinBtn.disabled = true;
         finalValue.innerHTML = `<p>Let's Go!</p>`;
-        console.log("Promo award: "+ promoAward)
-         // Call the spinWheel() function to initiate spinning
-        console.log("Spinning... with ");
-    } catch (error) {
-        console.error('Error spinning the wheel:', error);
-    }
-});
-// Call the update function on page load
-updateWheelValues();
-//-------------------------------------------------------
-// Function to check if it's an odd-numbered minute
-const isOddMinute = () => {
-  const now = new Date();
-  const minutes = now.getMinutes();
-  return minutes % 2 !== 0;
-};
-// Disable the spin button on odd-numbered minutes
-if (isOddMinute()) {
-  spinBtn.disabled = true;
-}
 
-let isZero = false;
-// Function to check seconds
-const secondsCheck = () => {
-  const nowSeconds = new Date();
-  const seconds = nowSeconds.getSeconds();
-  if (seconds == 0) {
-    updateWheelValues();
-    finalValue.innerHTML = `<p>Please wait for the rigth time</p>`;
+        let prizeIndex = wheelValues.indexOf(promoAward) 
+        let stopDegree = 50;
+        let rotationInterval = window.setInterval(() => {
+        myChart.options.rotation = myChart.options.rotation + resultValue;
+        myChart.update();
+   
+        if (myChart.options.rotation >= 360) {
+          count += 1;
+          resultValue -= 5;
+          myChart.options.rotation = prizeIndex;
+        
+        }
+      console.log(prizeIndex);
+          if (count > 15 && myChart.options.rotation >= stopDegree) {
+            valueGenerator(stopDegree, wheelValues);
+            count = 0;
+            resultValue = 101;
+            clearInterval(rotationInterval);
+          }
+        }, 10);
+              console.log("Promo award: "+ promoAward)
+              // Call the spinWheel() function to initiate spinning
+              console.log("Spinning... with ");
+          } catch (error) {
+              console.error('Error spinning the wheel:', error);
+          }
+      });
+
+let count = 0;
+let resultValue = 101;
+
+const valueGenerator = (angleValue, wheelData) => {
+  for (let i of rotationValues) {
+    if (angleValue >= i.minDegree && angleValue <= i.maxDegree) {
+      const wonAmount = "$" + wheelData[i.value];
+      finalValue.innerHTML = `<p>Congratulations! You won ${wonAmount}</p>`;
+      break;
+    }
   }
 };
-secondsCheck;
 
-spinBtn.addEventListener("click", () => {
-
-  let prizeIndex = wheelValues.indexOf(promoAward) 
-  let stopDegree = 50;
-  let rotationInterval = window.setInterval(() => {
-    myChart.options.rotation = myChart.options.rotation + resultValue;
-    myChart.update();
-   
-    if (myChart.options.rotation >= 360) {
-      count += 1;
-      resultValue -= 5;
-      myChart.options.rotation = prizeIndex;
-    
-    }
-console.log(prizeIndex);
-    if (count > 15 && myChart.options.rotation >= stopDegree) {
-      valueGenerator(stopDegree, wheelValues);
-      count = 0;
-      resultValue = 101;
-      clearInterval(rotationInterval);
-    }
-  }, 10);
-});
-
-setInterval(secondsCheck, 1000);

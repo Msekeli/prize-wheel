@@ -110,10 +110,10 @@ async function spinWheel() {
       if (!response.ok) {
           throw new Error('Failed to spin the wheel');
       }
-
-      const data = await response.json();
-      console.log('Response Data:', data); // Log the entire response data
-      console.log('Picked Prize Value:', data); // Ensure this value is correct
+      //from spinwheel function
+      const prizeValue = await response.json();
+      console.log('Response Data:', prizeValue); 
+      console.log('Picked Prize Value:', prizeValue); 
       
   } catch (error) {
       console.error('Error spinning the wheel:', error);

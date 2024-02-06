@@ -112,25 +112,32 @@ async function spinWheel() {
       }
       //from spinwheel function
       const prizeValue = await response.json();
+
       console.log('Response Data:', prizeValue); 
       console.log('Picked Prize Value:', prizeValue); 
+
+      return prizeValue;
       
   } catch (error) {
       console.error('Error spinning the wheel:', error);
   }
 }
 
+let promoAward;
 // Function to handle button click event
 document.getElementById("spin-btn").addEventListener("click", async function() {
     try {
-        await spinWheel(); // Call the spinWheel() function to initiate spinning
-        console.log("Spinning...");
+        promoAward = await spinWheel();
+
+        spinBtn.disabled = true;
+        finalValue.innerHTML = `<p>Let's Go!</p>`;
+        console.log("Promo award: "+ promoAward)
+         // Call the spinWheel() function to initiate spinning
+        console.log("Spinning... with ");
     } catch (error) {
         console.error('Error spinning the wheel:', error);
     }
 });
-
-
 // Call the update function on page load
 updateWheelValues();
 //-------------------------------------------------------
@@ -158,20 +165,20 @@ const secondsCheck = () => {
 secondsCheck;
 
 spinBtn.addEventListener("click", () => {
-  spinBtn.disabled = true;
-  finalValue.innerHTML = `<p>Let's Go!</p>`;
 
+  let prizeIndex = wheelValues.indexOf(promoAward) 
   let stopDegree = 50;
   let rotationInterval = window.setInterval(() => {
     myChart.options.rotation = myChart.options.rotation + resultValue;
     myChart.update();
-
+   
     if (myChart.options.rotation >= 360) {
       count += 1;
       resultValue -= 5;
-      myChart.options.rotation = 0;
+      myChart.options.rotation = prizeIndex;
+    
     }
-
+console.log(prizeIndex);
     if (count > 15 && myChart.options.rotation >= stopDegree) {
       valueGenerator(stopDegree, wheelValues);
       count = 0;

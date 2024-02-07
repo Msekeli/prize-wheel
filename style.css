@@ -61,7 +61,11 @@
     font-size: 1.8em;
     letter-spacing: 0.1em;
     font-weight: 600;
-  }
+}
+#spin-btn:disabled {
+    background: gray !important;
+    cursor: not-allowed !important;
+}
   img {
     position: absolute;
     width: 4em;
@@ -70,22 +74,23 @@
     transform: rotate(270deg);
   }
   #final-value {
-    background: #fdcf3b;
+    background: radial-gradient(#fdcf3b 15%, #d88a40 85%);
     border-radius: 5px;
     font-size: 1.5em;
     text-align: center;
     color: #fff;
     font-weight: 600;
-    margin-bottom: 20px;
+    margin-bottom: 25px;
     padding: 20px 0;
     box-shadow: 0 4em 5em rgba(27, 8, 53, 0.2);
   }
 
   @media screen and (max-width: 768px) {
-    .wrapper {
-      font-size: 12px;
+    body {
+      font-size: 10px !important;
     }
     img {
-      right: -5%;
+      right: 43% !important;
+      top: -11% !important;
     }
   }

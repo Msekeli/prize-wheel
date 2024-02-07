@@ -47,7 +47,6 @@ namespace PrizeWheelApi
 
           // Get prize value
           var prizeValue = jsonArray[prizeIndex];
-
           // Log selected prize
           log.LogInformation($"Selected prize value: {prizeValue}");
 

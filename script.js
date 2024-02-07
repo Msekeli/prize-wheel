@@ -65,8 +65,7 @@ const getWheelValues = async () => {
       }
     });
     wheelValues = await response.json();
-    var values = wheelValues;
-    console.log(wheelValues)
+    console.log('wheel values: ', wheelValues)
 
     if (wheelValues && wheelValues.message) {
       finalValue.innerHTML = `<p>${wheelValues.message}</p>`;
@@ -112,6 +111,7 @@ secondsCheck;
 setInterval(secondsCheck, 1000);
 //-======================----------------------=============----------------------------==============================-----------
 // Function to spin the wheel***************************************************
+let prizeValue;
 async function spinWheel() {
   try {
       const response = await fetch('http://localhost:7071/api/prizewheel/spin', {
@@ -126,9 +126,8 @@ async function spinWheel() {
           throw new Error('Failed to spin the wheel');
       }
       //from spinwheel function
-      const prizeValue = await response.json();
+      prizeValue = await response.json();
 
-      console.log('Response Data:', prizeValue); 
       console.log('Picked Prize Value:', prizeValue); 
 
       return prizeValue;
@@ -138,17 +137,56 @@ async function spinWheel() {
   }
 }
 
-let promoAward;
+let awardAmountIndex; 
+function findIndex(wheelValues, prizeValue) {
+	for (let i = 0; i < wheelValues.length; i++) {
+		if (wheelValues[i] === prizeValue) {
+			awardAmountIndex = i + 1;
+			console.log('%cawardAmountIndex', 'color: pink', awardAmountIndex);
+			return awardAmountIndex;
+		}
+	}
+	return 'Award Amount not found in Segments array!';
+}
+
+let stopDegree;
+
+function calcStopDegree() {
+	switch (awardAmountIndex) {
+		case 1:
+			stopDegree = 325;
+			break;
+		case 2:
+			stopDegree = 265;
+			break;
+		case 3:
+			stopDegree = 205;
+			break;
+		case 4:
+			stopDegree = 145;
+			break;
+		case 5:
+			stopDegree = 85;
+			break;
+		case 6:
+			stopDegree = 25;
+			break;
+	}
+	console.log('%cstopdegree: ', 'color: yellow', stopDegree);
+}
+
+
 // Function to handle button click event
 document.getElementById("spin-btn").addEventListener("click", async function() {
     try {
-        promoAward = await spinWheel();
+      prizeValue = await spinWheel();
+      findIndex(wheelValues, prizeValue);
+      calcStopDegree();
 
         spinBtn.disabled = true;
         finalValue.innerHTML = `<p>Let's Go!</p>`;
 
-        let prizeIndex = wheelValues.indexOf(promoAward) 
-        let stopDegree = 50;
+        // let stopDegree = 50;
         let rotationInterval = window.setInterval(() => {
         myChart.options.rotation = myChart.options.rotation + resultValue;
         myChart.update();
@@ -156,20 +194,20 @@ document.getElementById("spin-btn").addEventListener("click", async function() {
         if (myChart.options.rotation >= 360) {
           count += 1;
           resultValue -= 5;
-          myChart.options.rotation = prizeIndex;
+          myChart.options.rotation = 0;
         
         }
-      console.log(prizeIndex);
+      // console.log(prizeValue);
           if (count > 15 && myChart.options.rotation >= stopDegree) {
-            valueGenerator(stopDegree, wheelValues);
+            valueGenerator(stopDegree);
             count = 0;
             resultValue = 101;
             clearInterval(rotationInterval);
           }
         }, 10);
-              console.log("Promo award: "+ promoAward)
+              console.log("Promo award: "+ prizeValue)
               // Call the spinWheel() function to initiate spinning
-              console.log("Spinning... with ");
+              console.log("Spinning...");
           } catch (error) {
               console.error('Error spinning the wheel:', error);
           }
@@ -178,11 +216,10 @@ document.getElementById("spin-btn").addEventListener("click", async function() {
 let count = 0;
 let resultValue = 101;
 
-const valueGenerator = (angleValue, wheelData) => {
+const valueGenerator = (stopDegree) => {
   for (let i of rotationValues) {
-    if (angleValue >= i.minDegree && angleValue <= i.maxDegree) {
-      const wonAmount = "$" + wheelData[i.value];
-      finalValue.innerHTML = `<p>Congratulations! You won ${wonAmount}</p>`;
+    if (stopDegree >= i.minDegree && stopDegree <= i.maxDegree) {
+      finalValue.innerHTML = `<p>Congratulations! You won $${prizeValue}</p>`;
       break;
     }
   }

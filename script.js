@@ -14,7 +14,7 @@ const labels = '';
 let wheelValues = '';
 
 var pieColors = [
-  "#9336B4", "#DA70D6",
+"#CD06C0", "#CD7606", "#7606CD",  
 ];
 
 // Function to generate a random GUID for userId

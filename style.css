@@ -73,7 +73,7 @@
     right: 43%;
     transform: rotate(270deg);
   }
-  #final-value {
+  #message-box {
     background: radial-gradient(#fdcf3b 15%, #d88a40 85%);
     border-radius: 5px;
     font-size: 1.5em;
@@ -90,7 +90,7 @@
       font-size: 10px !important;
     }
     img {
-      right: 43% !important;
+      right: 41% !important;
       top: -11% !important;
     }
   }

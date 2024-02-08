@@ -7,10 +7,16 @@ using Microsoft.Extensions.Logging;
 
 public static class GetWheelValuesFunction
 {
+    // Random number generator for generating prize values
     private static readonly Random RandomGenerator = new Random();
+    
+    // Number of segments in the prize wheel
     private const int NumberOfSegments = 6;
+    
+    // Maximum prize amount that can be generated
     private const int MaxPrizeAmount = 500;
 
+    // Function triggered by an HTTP GET request at the specified route
     [FunctionName("GetWheelValues")]
     public static IActionResult Run(
         [HttpTrigger(AuthorizationLevel.Function, "get", Route = "prizewheel/getvalues")] HttpRequest req,
@@ -34,7 +40,10 @@ public static class GetWheelValuesFunction
                 // Generate random values for the wheel
                 var randomValues = GenerateRandomValues(NumberOfSegments);
 
-                log.LogInformation($"$Generated Wheel Values: {string.Join(", ", randomValues)}");
+                // Log the generated values
+                log.LogInformation($"Generated Wheel Values: {string.Join(", ", randomValues)}");
+
+                // Return the generated values as OK response
                 return new OkObjectResult(randomValues);
             }
             else
@@ -51,15 +60,19 @@ public static class GetWheelValuesFunction
         }
     }
 
+    // Method to generate random values for the wheel segments
     private static int[] GenerateRandomValues(int numberOfSegments)
     {
         // Generate random prize values for the wheel segments
         var values = new int[numberOfSegments];
 
+        // Generate random values for each segment
         for (int i = 0; i < numberOfSegments; i++)
         {
             values[i] = RandomGenerator.Next(MaxPrizeAmount);
         }
+        
+        // Return the generated values
         return values;
     }
 }

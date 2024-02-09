@@ -39,7 +39,7 @@ const getWheelValues = async () => {
     // Parse the JSON response
     wheelValues = await response.json();
     // Log the fetched wheel values
-    console.log('Response from GetWheelValuesFunction ', wheelValues)
+    console.log('wheel values: ', wheelValues)
 
     // If the response contains a message, update the HTML element with the id "finalValue"
     if (wheelValues && wheelValues.message) {
@@ -109,15 +109,17 @@ async function spinWheel() {
       },
       body: JSON.stringify({ wheelValues: wheelValues })
     });
-     // Extract the prize value from the response
-     const prizeValue = await response.json();
-    // If the response contains a message, update the HTML element with the id "finalValue"
-    if (prizeValue && prizeValue.message) {
-      finalValue.innerHTML = `<p>${prizeValue.message}</p>`;
+
+    // Check if the response is successful
+    if (!response.ok) {
+      throw new Error('Failed to spin the wheel');
     }
-   
+    
+    // Extract the prize value from the response
+    const prizeValue = await response.json();
+
     // Log the picked prize value
-    console.log('Response from the SpinWheelFunction:', prizeValue); 
+    console.log('Picked Prize Value:', prizeValue); 
 
     // Enable the spin button if a prize value exists
     if (prizeValue) {
@@ -126,7 +128,6 @@ async function spinWheel() {
 
     // Return the prize value
     return prizeValue;
-    
   } catch (error) {
     // Log any errors that occur during spinning the wheel
     console.error('Error spinning the wheel:', error);    
@@ -177,7 +178,7 @@ function calcStopDegree() {
 			break;
 	}
 	// Log the calculated stop degree
-	console.log("Stop degree is: " + stopDegree);
+	console.log(stopDegree);
 }
 
 // Event listener for the button click event
@@ -187,8 +188,7 @@ document.getElementById("spin-btn").addEventListener("click", async function() {
     try {
       // Spin the wheel and get the prize value
       prizeValue = await spinWheel();
-    if(!prizeValue.message) {
-            // Find the index of the prize value in the wheelValues array
+      // Find the index of the prize value in the wheelValues array
       findIndex(wheelValues, prizeValue);
       // Calculate the stop degree based on the prizeValueIndex
       calcStopDegree();
@@ -218,9 +218,6 @@ document.getElementById("spin-btn").addEventListener("click", async function() {
           clearInterval(rotationInterval);
         }
       }, 10);
-
-    }
-
 
     } catch (error) {
       // Log any errors that occur during spinning the wheel

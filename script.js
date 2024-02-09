@@ -1,7 +1,6 @@
 const wheel = document.getElementById("wheel");
-let spinBtn = document.getElementById("spin-btn");
-let finalValue = document.getElementById("message-box");
-
+const spinBtn = document.getElementById("spin-btn");
+let finalValue = document.getElementById("final-value");
 const rotationValues = [
   { minDegree: 0, maxDegree: 60, value: 0 },
   { minDegree: 61, maxDegree: 120, value: 1 },
@@ -14,7 +13,7 @@ const labels = '';
 let wheelValues = '';
 
 var pieColors = [
-"#CD06C0", "#CD7606", "#7606CD",  
+  "#9336B4", "#DA70D6",
 ];
 
 // Function to generate a random GUID for userId
@@ -39,7 +38,7 @@ const getWheelValues = async () => {
     // Parse the JSON response
     wheelValues = await response.json();
     // Log the fetched wheel values
-    console.log('wheel values: ', wheelValues)
+    console.log('Response from GetWheelValuesFunction ', wheelValues)
 
     // If the response contains a message, update the HTML element with the id "finalValue"
     if (wheelValues && wheelValues.message) {
@@ -68,7 +67,6 @@ updateWheelValues();
 
 // Initialize Chart.js chart object
 let myChart = new Chart(wheel, {
-  // Configuration options for the chart
   plugins: [ChartDataLabels],
   type: "pie",
   data: {
@@ -76,7 +74,7 @@ let myChart = new Chart(wheel, {
     datasets: [
       {
         backgroundColor: pieColors,
-        data: [1, 1, 1, 1, 1, 1], // Default data
+        data: [1, 1, 1, 1, 1, 1],
       },
     ],
   },
@@ -97,8 +95,73 @@ let myChart = new Chart(wheel, {
   },
 });
 
-// Function to spin the wheel and retrieve the prize value from the API
-let prizeValue;
+// Function to generate a random GUID for userId
+const generateRandomGuid = () => {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    var r = Math.random() * 16 | 0,
+        v = c === 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+};
+
+
+// Function to get wheel values from the API
+const getWheelValues = async () => {
+  try {
+    const response = await fetch('http://localhost:7071/api/prizewheel/getvalues', {
+      method: 'get',
+      headers: {
+        'content-type': 'application/json',
+      }
+    });
+    wheelValues = await response.json();
+    var values = wheelValues;
+    console.log(wheelValues)
+
+    if (wheelValues && wheelValues.message) {
+      finalValue.innerHTML = `<p>${wheelValues.message}</p>`;
+    }
+  } catch (error) {
+    console.error(error);
+  }
+};
+// Function to update the wheel with values from the API
+const updateWheelValues = async () => {
+  await getWheelValues();
+  finalValue = document.getElementById("final-value");
+  myChart.data.labels = wheelValues;
+  myChart.update();
+};
+// Call the update function on page load
+updateWheelValues();
+
+//--------------------------------------------===============================================================================----------------/////
+
+// Function to check if it's an odd-numbered minute
+const isOddMinute = () => {
+  const now = new Date();
+  const minutes = now.getMinutes();
+  return minutes % 2 !== 0;
+};
+// Disable the spin button on odd-numbered minutes
+if (isOddMinute()) {
+  spinBtn.disabled = true;
+}
+
+let isZero = false;
+// Function to check seconds
+const secondsCheck = () => {
+  const nowSeconds = new Date();
+  const seconds = nowSeconds.getSeconds();
+  if (seconds == 0) {
+    updateWheelValues();
+    finalValue.innerHTML = `<p>Please wait for the rigth time</p>`;
+  }
+};
+secondsCheck;
+setInterval(secondsCheck, 1000);
+//-======================----------------------=============----------------------------==============================-----------
+// Function to spin the wheel***************************************************
 async function spinWheel() {
   try {
     // Send a POST request to spin the wheel
@@ -109,17 +172,15 @@ async function spinWheel() {
       },
       body: JSON.stringify({ wheelValues: wheelValues })
     });
-
-    // Check if the response is successful
-    if (!response.ok) {
-      throw new Error('Failed to spin the wheel');
+     // Extract the prize value from the response
+     const prizeValue = await response.json();
+    // If the response contains a message, update the HTML element with the id "finalValue"
+    if (prizeValue && prizeValue.message) {
+      finalValue.innerHTML = `<p>${prizeValue.message}</p>`;
     }
-    
-    // Extract the prize value from the response
-    const prizeValue = await response.json();
-
+   
     // Log the picked prize value
-    console.log('Picked Prize Value:', prizeValue); 
+    console.log('Response from the SpinWheelFunction:', prizeValue); 
 
     // Enable the spin button if a prize value exists
     if (prizeValue) {
@@ -128,10 +189,9 @@ async function spinWheel() {
 
     // Return the prize value
     return prizeValue;
+    
   } catch (error) {
-    // Log any errors that occur during spinning the wheel
-    console.error('Error spinning the wheel:', error);    
-    return null;
+      console.error('Error spinning the wheel:', error);
   }
 }
 
@@ -178,7 +238,7 @@ function calcStopDegree() {
 			break;
 	}
 	// Log the calculated stop degree
-	console.log(stopDegree);
+	console.log("Stop degree is: " + stopDegree);
 }
 
 // Event listener for the button click event
@@ -188,7 +248,8 @@ document.getElementById("spin-btn").addEventListener("click", async function() {
     try {
       // Spin the wheel and get the prize value
       prizeValue = await spinWheel();
-      // Find the index of the prize value in the wheelValues array
+    if(!prizeValue.message) {
+            // Find the index of the prize value in the wheelValues array
       findIndex(wheelValues, prizeValue);
       // Calculate the stop degree based on the prizeValueIndex
       calcStopDegree();
@@ -197,16 +258,17 @@ document.getElementById("spin-btn").addEventListener("click", async function() {
       spinBtn.disabled = true;
       finalValue.innerHTML = `<p>Let's Go!</p>`;
 
-      // Initialize variables for rotating the chart
-      let rotationInterval = window.setInterval(() => {
+        let prizeIndex = wheelValues.indexOf(promoAward) 
+        let stopDegree = 50;
+        let rotationInterval = window.setInterval(() => {
         myChart.options.rotation = myChart.options.rotation + resultValue;
         myChart.update();
    
-        // Check if the chart rotation exceeds 360 degrees
         if (myChart.options.rotation >= 360) {
           count += 1;
           resultValue -= 5;
-          myChart.options.rotation = 0;
+          myChart.options.rotation = prizeIndex;
+        
         }
       
         // Check if the rotation count exceeds 15 and the rotation reaches the stop degree
@@ -219,23 +281,25 @@ document.getElementById("spin-btn").addEventListener("click", async function() {
         }
       }, 10);
 
+    }
+
+
     } catch (error) {
       // Log any errors that occur during spinning the wheel
       console.error('Error spinning the wheel:', error);
     }
 });
 
-// Variables for chart rotation control
 let count = 0;
 let resultValue = 101;
 
-// Function to determine the prize value based on the stop degree
-const determinePrizeValue = (stopDegree) => {
+const valueGenerator = (angleValue, wheelData) => {
   for (let i of rotationValues) {
-    if (stopDegree >= i.minDegree && stopDegree <= i.maxDegree) {
-      // Display the prize value on the screen
-      finalValue.innerHTML = `<p>Congratulations! You won $${prizeValue}</p>`;
+    if (angleValue >= i.minDegree && angleValue <= i.maxDegree) {
+      const wonAmount = "$" + wheelData[i.value];
+      finalValue.innerHTML = `<p>Congratulations! You won ${wonAmount}</p>`;
       break;
     }
   }
 };
+

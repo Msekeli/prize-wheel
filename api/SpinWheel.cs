@@ -1,3 +1,12 @@
+/* Accept a spin request 
+
+//If the current minute of the hour is divisible by 3, throw an exception that we did not expect the wheel to be spun on these minutes
+
+//Else, return a random prize (one of the $ amounts) for the wheel to land on
+
+// **6, 12, 18, 24, 30, 36, 42, 48, 54, 60**
+  */
+
 using System;
 using System.IO;
 using System.Threading.Tasks;
@@ -11,62 +20,76 @@ using Newtonsoft.Json.Linq;
 
 namespace PrizeWheelApi
 {
-  public static class SpinWheelFunction
-  {
-    // Function to handle spinning the prize wheel
-    [FunctionName("SpinWheel")]
-    public static async Task<IActionResult> Run(
-        [HttpTrigger(AuthorizationLevel.Function, "post", Route = "prizewheel/spin")] HttpRequest req,
-        ILogger log)
+    public static class SpinWheelFunction
     {
-      JArray jsonArray = null; // Initialize jsonArray
-
-      try
-      {
-        // Read request body 
-        string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-
-        // Deserialize request body to dynamic object
-        dynamic data = JsonConvert.DeserializeObject(requestBody);
-
-        // Get wheelValues array from request
-        var wheelValues = data?.wheelValues;
-
-        // Log received values
-        log.LogInformation($"Received wheel values: {JsonConvert.SerializeObject(wheelValues)}");
-
-        // Validate input
-        if (wheelValues != null && wheelValues is JArray && wheelValues.Count > 0)
+        // Azure Function triggered by an HTTP POST request at the specified route
+        [FunctionName("SpinWheel")]
+        public static async Task<IActionResult> Run(
+            [HttpTrigger(AuthorizationLevel.Function, "post", Route = "prizewheel/spin")] HttpRequest req,
+            ILogger log)
         {
-          // Assign wheelValues to jsonArray
-          jsonArray = (JArray)wheelValues;
+            try
+            {
 
-          // Get random index for prize
-          var random = new Random();
-          var prizeIndex = random.Next(jsonArray.Count);
+                // Convert current UTC time to US Eastern Time
+                var easternTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time");
+                var currentTimeInEastern = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, easternTimeZone);
+               
+                // Read the request body 
+                string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
 
-          // Get prize value
-          var prizeValue = jsonArray[prizeIndex];
+                // Deserialize the request body to a dynamic object
+                dynamic data = JsonConvert.DeserializeObject(requestBody);
 
-          // Log selected prize
-          log.LogInformation($"Selected prize value: {prizeValue}");
+                // Get the wheelValues array from the request
+                var wheelValues = data?.wheelValues;
 
-          // Return result
-          return new OkObjectResult(prizeValue);
+                // Log the received values
+                log.LogInformation($"Received wheel values: {JsonConvert.SerializeObject(wheelValues)}");
 
+
+                // Validate the input
+                if (wheelValues != null && wheelValues is JArray && wheelValues.Count > 0)
+                {
+                    // Get a random index for the prize
+                    var random = new Random();
+                    var prizeIndex = random.Next(wheelValues.Count);
+
+                    // Get the prize value
+                    var prizeValue = wheelValues[prizeIndex];
+
+                    // Log the selected prize
+                    log.LogInformation($"Selected prize value: {prizeValue}");
+
+                     // Check if the current minute is divisible by 3
+          if (currentTimeInEastern.Minute % 3 == 0)
+                {
+                    // Throw an exception if spinning the wheel is not allowed at this minute
+                    // throw new Exception("Did not expect the wheel to be spun at this minute.");
+                    // Return a message if wheel spin is not allowed at odd-numbered minutes
+                    return new ObjectResult(new { Message = "Did not expect the wheel to be spun at this minute." });
+                }
+                else{
+                   // Return the selected prize value as a response
+                    return new OkObjectResult(prizeValue);  
+                }
+                   
+                }
+                else
+                {
+                    // Throw an error if the input is invalid or the wheel values array is empty
+                    throw new Exception("Invalid or empty wheel values array.");
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log any errors and return a 500 status code
+                log.LogError($"Error in SpinWheelFunction: {ex.Message}\nStackTrace: {ex.StackTrace}");
+                return new StatusCodeResult(500);
+            }
+            
+            // Add a return statement at the end of the function
+            return new StatusCodeResult(500);
         }
-        else
-        {
-          // Throw error if invalid input
-          throw new Exception("Invalid or empty wheel values array.");
-        }
-      }
-      catch (Exception ex)
-      {
-        // Log any errors
-        log.LogError($"Error in SpinWheelFunction: {ex.Message}\nStackTrace: {ex.StackTrace}");
-        return new StatusCodeResult(500);
-      }
     }
-  }
 }

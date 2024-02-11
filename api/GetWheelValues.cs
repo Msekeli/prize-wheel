@@ -13,7 +13,7 @@ public static class GetWheelValuesFunction
 
     [FunctionName("GetWheelValues")]
     public static IActionResult Run(
-        [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)] HttpRequest req,
+        [HttpTrigger(AuthorizationLevel.Function, "get", Route = "prizewheel/getvalues")] HttpRequest req,
         ILogger log)
     {
         try
@@ -34,9 +34,11 @@ public static class GetWheelValuesFunction
                 // Generate random values for the wheel
                 var randomValues = GenerateRandomValues(NumberOfSegments);
 
-                log.LogInformation($"Generated Wheel Values: ${string.Join(", $", randomValues)}");
-                return new OkObjectResult(randomValues);
+                // Log the generated values
+                log.LogInformation($"Generated Wheel Values: {string.Join(", ", randomValues)}");
 
+                // Return the generated values as OK response
+                return new OkObjectResult(randomValues);
             }
             else
             {

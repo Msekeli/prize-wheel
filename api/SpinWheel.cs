@@ -1,48 +1,81 @@
 using System;
+using System.IO;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
-public static class SpinWheelFunction
+namespace PrizeWheelApi
 {
-
-  [FunctionName("SpinWheel")]
-  public static IActionResult Run(
-    [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)] HttpRequest req,
-    ILogger log)
-  {
-    try
+    public static class SpinWheelFunction
     {
-      // Retrieve userId from the query parameters   
-      string userId = req.Query["userId"];
+        // Azure Function triggered by an HTTP POST request at the specified route
+        [FunctionName("SpinWheel")]
+        public static async Task<IActionResult> Run(
+            [HttpTrigger(AuthorizationLevel.Function, "post", Route = "prizewheel/spin")] HttpRequest req,
+            ILogger log)
+        {
+            try
+            {
 
-      // Get the current time in Eastern Time Zone
-      var easternTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time");
-      var currentTime = TimeZoneInfo.ConvertTime(DateTime.UtcNow, easternTimeZone);
+                // Convert current UTC time to US Eastern Time
+                var easternTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time");
+                var currentTimeInEastern = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, easternTimeZone);
+               
+                // Read the request body 
+                string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
 
-      // Log userId for tracking
-      log.LogInformation($"SpinWheel - userId: {userId}");
-      Console.WriteLine(currentTime.Minute %3 );
-      Console.WriteLine(currentTime.Minute %2 );
+                // Deserialize the request body to a dynamic object
+                dynamic data = JsonConvert.DeserializeObject(requestBody);
 
-      // Check if the current minute is divisible by 3 and not even number
-      if (currentTime.Minute % 3 == 0)
-      {
-         return new OkObjectResult(new { Message = "Can't spin the wheel now. Try again later." });
-      }
-      else
-      {
-        // Allow the wheel to be spon if the current minute is not divisible by 3
-        return new OkObjectResult(new { Message = "Enable the button to spin the wheel." });
-      }
+                // Get the wheelValues array from the request
+                var wheelValues = data?.wheelValues;
+
+                // Log the received values
+                log.LogInformation($"Received wheel values: {JsonConvert.SerializeObject(wheelValues)}");
+
+
+                // Validate the input
+                if (wheelValues != null && wheelValues is JArray && wheelValues.Count > 0)
+                {
+                    // Get a random index for the prize
+                    var random = new Random();
+                    var prizeIndex = random.Next(wheelValues.Count);
+
+                    // Get the prize value
+                    var prizeValue = wheelValues[prizeIndex];
+
+                    // Log the selected prize
+                    log.LogInformation($"Selected prize value: {prizeValue}");
+
+                     // Check if the current minute is divisible by 3
+          if (currentTimeInEastern.Minute % 3 == 0)
+                {
+             
+                    return new ObjectResult(new { Message = "Did not expect the wheel to be spun at this minute." });
+                }
+                else{
+                   // Return the selected prize value as a response
+                    return new OkObjectResult(prizeValue);  
+                }
+                   
+                }
+                else
+                {
+                    // Throw an error if the input is invalid or the wheel values array is empty
+                    throw new Exception("Invalid or empty wheel values array.");
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log any errors and return a 500 status code
+                log.LogError($"Error in SpinWheelFunction: {ex.Message}\nStackTrace: {ex.StackTrace}");
+                return new StatusCodeResult(500);
+            }
+        }
     }
-    catch (Exception ex)
-    {
-      // Log and return a 500 status code in case of an exception
-      log.LogError($"Error in SpinWheelFunction: {ex.Message}\nStackTrace: {ex.StackTrace}");
-      return new StatusCodeResult(500);
-    }
-  }
 }

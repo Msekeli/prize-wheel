@@ -21,11 +21,17 @@ namespace PrizeWheelApi
         {
             try
             {
-
                 // Convert current UTC time to US Eastern Time
                 var easternTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time");
                 var currentTimeInEastern = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, easternTimeZone);
-               
+
+                // Check if the current minute is divisible by 3
+                if (currentTimeInEastern.Minute % 3 == 0)
+                {
+                    // Throw an exception if spinning the wheel is not allowed at this minute
+                    throw new Exception("Did not expect the wheel to be spun at this minute.");
+                }
+
                 // Read the request body 
                 string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
 
@@ -37,7 +43,6 @@ namespace PrizeWheelApi
 
                 // Log the received values
                 log.LogInformation($"Received wheel values: {JsonConvert.SerializeObject(wheelValues)}");
-
 
                 // Validate the input
                 if (wheelValues != null && wheelValues is JArray && wheelValues.Count > 0)
@@ -52,19 +57,8 @@ namespace PrizeWheelApi
           // Log selected prize
           log.LogInformation($"Selected prize value: {prizeValue}");
 
-                     // Check if the current minute is divisible by 3
-          if (currentTimeInEastern.Minute % 3 == 0)
-                {
-                    // Throw an exception if spinning the wheel is not allowed at this minute
-                    // throw new Exception("Did not expect the wheel to be spun at this minute.");
-                    // Return a message if wheel spin is not allowed at odd-numbered minutes
-                    return new ObjectResult(new { Message = "Did not expect the wheel to be spun at this minute." });
-                }
-                else{
-                   // Return the selected prize value as a response
-                    return new OkObjectResult(prizeValue);  
-                }
-                   
+                    // Return the selected prize value as a response
+                    return new OkObjectResult(prizeValue);
                 }
                 else
                 {
@@ -78,9 +72,6 @@ namespace PrizeWheelApi
                 log.LogError($"Error in SpinWheelFunction: {ex.Message}\nStackTrace: {ex.StackTrace}");
                 return new StatusCodeResult(500);
             }
-            
-            // Add a return statement at the end of the function
-            return new StatusCodeResult(500);
         }
     }
 }

@@ -220,8 +220,6 @@ document.getElementById("spin-btn").addEventListener("click", async function() {
       }, 10);
 
     }
-
-
     } catch (error) {
       // Log any errors that occur during spinning the wheel
       console.error('Error spinning the wheel:', error);

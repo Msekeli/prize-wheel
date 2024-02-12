@@ -76,10 +76,10 @@ const secondsCheck = () => {
   const seconds = nowSeconds.getSeconds();
   if (seconds == 0) {
     updateWheelValues();
-    finalValue.innerHTML = `<p>Please wait for the right time</p>`; // Fix the misspelled comment
+    messageBox.innerHTML = `<p>Click the spin button to spin</p>`; 
   }
 };
 
-secondsCheck(); // Call the function
+secondsCheck();
 
 setInterval(secondsCheck, 1000);

@@ -1,6 +1,6 @@
 const wheel = document.getElementById("wheel");
 let spinBtn = document.getElementById("spin-btn");
-let finalValue = document.getElementById("message-box");
+let messageBox = document.getElementById("message-box");
 
 const rotationValues = [
   { minDegree: 0, maxDegree: 60, value: 0 },
@@ -41,9 +41,9 @@ const getWheelValues = async () => {
     // Log the fetched wheel values
     console.log('Response from GetWheelValuesFunction ', wheelValues)
 
-    // If the response contains a message, update the HTML element with the id "finalValue"
+    // If the response contains a message, update the HTML element with the id "messageBox"
     if (wheelValues && wheelValues.message) {
-      finalValue.innerHTML = `<p>${wheelValues.message}</p>`;
+      messageBox.innerHTML = `<p>${wheelValues.message}</p>`;
     }
   } catch (error) {
     // Log any errors that occur during the process
@@ -56,7 +56,7 @@ const updateWheelValues = async () => {
   // Call the function to get wheel values
   await getWheelValues();
   // Get the HTML element with the id "message-box"
-  finalValue = document.getElementById("message-box");
+  messageBox = document.getElementById("message-box");
   // Update the data labels of the chart with the fetched wheel values
   myChart.data.labels = wheelValues;
   // Update the chart
@@ -111,9 +111,9 @@ async function spinWheel() {
     });
      // Extract the prize value from the response
      const prizeValue = await response.json();
-    // If the response contains a message, update the HTML element with the id "finalValue"
+    // If the response contains a message, update the HTML element with the id "messageBox"
     if (prizeValue && prizeValue.message) {
-      finalValue.innerHTML = `<p>${prizeValue.message}</p>`;
+      messageBox.innerHTML = `<p>${prizeValue.message}</p>`;
     }
    
     // Log the picked prize value
@@ -195,7 +195,7 @@ document.getElementById("spin-btn").addEventListener("click", async function() {
 
       // Enable the spin button and display a message
       spinBtn.disabled = true;
-      finalValue.innerHTML = `<p>Let's Go!</p>`;
+      messageBox.innerHTML = `<p>Let's Go!</p>`;
 
       // Initialize variables for rotating the chart
       let rotationInterval = window.setInterval(() => {
@@ -237,7 +237,7 @@ const determinePrizeValue = (stopDegree) => {
   for (let i of rotationValues) {
     if (stopDegree >= i.minDegree && stopDegree <= i.maxDegree) {
       // Display the prize value on the screen
-      finalValue.innerHTML = `<p>Congratulations! You won $${prizeValue}</p>`;
+      messageBox.innerHTML = `<p>Congratulations! You won $${prizeValue}</p>`;
       break;
     }
   }

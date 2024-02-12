@@ -50,7 +50,6 @@ const getWheelValues = async () => {
     console.error(error);
   }
 };
-
 // Function to update the wheel with values from the API
 const updateWheelValues = async () => {
   // Call the function to get wheel values

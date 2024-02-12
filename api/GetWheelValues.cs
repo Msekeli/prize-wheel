@@ -7,8 +7,13 @@ using Microsoft.Extensions.Logging;
 
 public static class GetWheelValuesFunction
 {
+    // Random number generator for generating prize values
     private static readonly Random RandomGenerator = new Random();
+
+    // Number of segments on the wheel
     private const int NumberOfSegments = 6;
+
+    // Maximum prize amount that can be won
     private const int MaxPrizeAmount = 500;
 
     [FunctionName("GetWheelValues")]
@@ -54,15 +59,16 @@ public static class GetWheelValuesFunction
         }
     }
 
+    // Generate random values for the wheel segments
     private static int[] GenerateRandomValues(int numberOfSegments)
     {
-        // Generate random prize values for the wheel segments
         var values = new int[numberOfSegments];
 
         for (int i = 0; i < numberOfSegments; i++)
         {
             values[i] = RandomGenerator.Next(MaxPrizeAmount);
         }
+
         return values;
     }
 }

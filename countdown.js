@@ -59,16 +59,13 @@ const isOddMinute = () => {
   const now = new Date();
   const minutes = now.getMinutes();
   return minutes % 2 !== 0;
-  spinBtn.disabled = true;
 };
 
 // Disable the spin button on odd-numbered minutes
 if (isOddMinute()) {
-  const spinBtn = document.getElementById("spin-btn"); // define spinBtn
+  const spinBtn = document.getElementById("spin-btn"); 
   spinBtn.disabled = true;
 }
-
-let isZero = false;
 
 // Function to check seconds
 const secondsCheck = () => {
